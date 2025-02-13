@@ -1,0 +1,11 @@
+GET http://localhost:3000/users HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImlkIjoiNjFiNzZiOTktNjQ3Mi00N2QyLTg0NGEtZTU0NTlmYjQyNTdmIiwicm9sZSI6ImFkbWluIn0sImlhdCI6MTczODQzMDcyNiwiZXhwIjoxNzM4NDM0MzI2fQ.69FngzaOlmp1TWdII1SNVLQhBufdyJn6XwPNr5ws7Vo
+
+
+POST http://localhost:3000/users/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "sample@gmail.com",
+    "password": "12345"
+}

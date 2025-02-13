@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Department {
+  id          String  @id @default(uuid())
+  name        String
+  abbreviation String?
+  isDeleted   Boolean @default(false)
+  createdAt   DateTime @default(now())
+  deletedBy   String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+ // users       User[]   // One-to-many relation with User model
+  jobs        Job[]    // One-to-many relation with Job model
+}
+
+model User {
+  id              String         @id @default(uuid())
+  role         String
+  departmentId    String?
+  Fname           String
+  Lname           String
+  password        String 
+  email           String?
+  image           String?
+  isDeleted       Boolean?        @default(false)
+  createdAt       DateTime ?      @default(now())
+  createdBy       String?
+ // department      Department?    @relation(fields: [departmentId], references: [id]) // Optional
+  //role            Role           @relation(fields: [roleId], references: [id])      // Relation to Role model
+ // applicantForm   ApplicantForm? // One-to-one relation (no `fields` or `references` here)
+}
+
+
+
+model Role {
+  id              String           @id @default(uuid())
+  name            String
+  createdBy       String?
+  updatedBy       String?
+  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime         @default(now())
+  //users           User[]           // One-to-many relation with User model
+  rolePermissions RolePermission[] // One-to-many relation with RolePermission
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  name            String
+  createdBy       String?
+  updatedBy       String?
+  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime         @default(now())
+  rolePermissions RolePermission[] // One-to-many relation with RolePermission
+}
+
+model Location{
+  id          String           @id @default(uuid())
+  name        String
+  address     String
+  status      String?  @default("Active")
+  job Job[]
+  createdBy       String?
+  updatedBy       String?
+  updatedAt       DateTime         @updatedAt
+  createdAt       DateTime         @default(now())
+}
+
+
+model Job {
+  id            String      @id @default(uuid())
+  title         String
+  description   String @db.Text  // Allows long text
+  departmentId  String      // Foreign key
+  startDate     DateTime    
+  endDate       DateTime
+  status        String
+  responsibility  String @db.Text
+  requirement      String @db.Text
+  skill            String @db.Text
+  quantity      Int        // Added data type for Quantity
+
+  locationId String
+  location Location @relation(fields: [locationId],references: [id])
+
+  department    Department  @relation(fields: [departmentId], references: [id]) // Relation to Department
+  applicantform        ApplicantForm[]    // One-to-many relation with ApplicantForm model
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model ApprovalStage {
+  id        String   @id @default(uuid())
+  name      String
+  stage     String?
+  createdBy String?
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model RolePermission {
+  id           String       @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  role         Role         @relation(fields: [roleId], references: [id]) // Relation to Role model
+  permission   Permission   @relation(fields: [permissionId], references: [id]) // Relation to Permission model
+
+  createdBy    String?
+  updatedBy    String?
+  updatedAt    DateTime     @updatedAt
+  createdAt    DateTime     @default(now())
+}
+
+model ApplicantForm {
+  id        String   @id @default(uuid())
+ // userId    String   @unique // Foreign key for the one-to-one relation
+  fullName  String
+  cgpa      Float?
+  email     String
+  phone     String
+  cv        String
+  status    String
+  jobId     String
+  job    Job  @relation(fields: [jobId], references: [id]) // Relation to JOb
+
+  applicantTime  DateTime  @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ // user      User     @relation(fields: [userId], references: [id]) // Define relation here
+}
+

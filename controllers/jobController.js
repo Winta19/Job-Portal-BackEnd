@@ -11,6 +11,8 @@ const getJobs = async (req, res) => {
     });
     res.json(jobs);
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -43,7 +45,7 @@ const getJobById = async (req, res) => {
 
 // Create a new job
 const createJob = async (req, res) => {
-  console.log(req.body);
+  console.log(req.body,);
 
   const { title, description, departmentId,startDate,endDate,status,quantity,responsibility,requirement,skill ,locationId} = req.body;
 
@@ -93,10 +95,21 @@ const updateJob = async (req, res) => {
 const deleteJob = async (req, res) => {
   const { id } = req.params;
   try {
-    await prisma.job.delete({ where: { id: id } });
+    // await prisma.job.delete({ where: { id: id } });
+    // res.json({ message: "Job deleted successfully" });
+    await prisma.applicantForm.deleteMany({
+      where: { jobId: id },
+    });
+
+    // Now delete the job
+    await prisma.job.delete({
+      where: { id },
+    });
+
     res.json({ message: "Job deleted successfully" });
+ 
   } catch (error) {
-    res.status(404).json({ error: "Job not found" });
+    res.status(404).json({ error});
   }
 };
 

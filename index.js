@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const userRoute = require("./routes/userRoute"); // Correct import of userRoute
 const departmentRoute = require("./routes/departmentRoute"); // Correct import of departmentRoute
 const roleRoute = require("./routes/roleRoute"); // Correct import of roleRoute
@@ -12,6 +13,7 @@ var cors = require('cors')
 const app = express();
 app.use(express.json());
 app.use(cors())
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 // Use userRoutes
 app.use("/users", userRoute);
 app.use("/departments", departmentRoute);

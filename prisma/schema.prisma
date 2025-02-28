@@ -86,7 +86,7 @@ model Job {
   skill            String @db.Text
   quantity      Int        // Added data type for Quantity
 
-  locationId String
+  locationId  String
   location Location @relation(fields: [locationId],references: [id])
 
   department    Department  @relation(fields: [departmentId], references: [id]) // Relation to Department
@@ -130,6 +130,7 @@ model ApplicantForm {
   cv        String
   status    String
   jobId     String
+  score     Float?    @default(0)
   job    Job  @relation(fields: [jobId], references: [id]) // Relation to JOb
 
   applicantTime  DateTime  @default(now())

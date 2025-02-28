@@ -1,5 +1,5 @@
 const prisma = require("../prismaClient");
-
+const { mailSender}= require("../util/sendEmail")
 // Get all ApplicantForms
 const getApplicantForms = async (req, res) => {
   try {
@@ -56,6 +56,8 @@ console.log("cvPath",cvPath);
         jobId,
       },
     });
+    const emailResult = mailSender(email,"Application form status","you are registered successfully. we will notify you your application status")
+    console.log(emailResult);
     res.status(201).json(applicantForm);
   } catch (error) {
     console.error("Error creating ApplicantForm:", error);
@@ -80,17 +82,34 @@ const updateApplicantForm = async (req, res) => {
 };
 
 // Update a ApplicantForm
+// const updateStatusApplicantForm = async (req, res) => {
+//   const { id } = req.params;
+//   const { status } = req.body;
+//   try {
+//     const updatedApplicantForm = await prisma.applicantForm.update({
+//       where: { id: id },
+//       data: {  status },
+//     });
+//     res.json(updatedApplicantForm);
+//   } catch (error) {
+//     res.status(404).json({ error: " ApplicantForm not found" });
+//   }
+// };
+
 const updateStatusApplicantForm = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+
   try {
     const updatedApplicantForm = await prisma.applicantForm.update({
-      where: { id: id },
-      data: {  status },
+      where: { id },
+      data: { status },
     });
+
     res.json(updatedApplicantForm);
   } catch (error) {
-    res.status(404).json({ error: " ApplicantForm not found" });
+    console.error("Error updating status:", error);
+    res.status(404).json({ error});
   }
 };
 

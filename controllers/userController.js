@@ -126,14 +126,65 @@ const createUser = async (req, res) => {
   }
 };
 
+
+const changePassword = async (req, res) => {
+  const { id } = req.params; // Get userId from params
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: "Both current and new passwords are required." });
+  }
+
+  try {
+    // Find user by ID
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Check if current password is correct
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Current password is incorrect." });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password in the database
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword },
+    });
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 // Update a user
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email } = req.body;
+  const { Fname, Lname, email, image, role, departmentId } =
+    req.body;
   try {
     const updatedUser = await prisma.user.update({
-      where: { id: parseInt(id) },
-      data: { name, email },
+      where: { id:id },
+      data: {
+        Fname,
+        Lname,
+        email, // Optional field
+        image, // Optional field
+        role, // Required field
+        // departmentId, // Optional field
+      },
     });
     res.json(updatedUser);
   } catch (error) {
@@ -145,10 +196,16 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
-    await prisma.user.delete({ where: { id: parseInt(id) } });
+
+//     const user = await prisma.user.findUnique({ where: { id: id } });
+// if(!user ){
+//   res.status(404).json({ error: "User not found" });
+
+// }
+    await prisma.user.delete({ where: { id} });
     res.json({ message: "User deleted successfully" });
   } catch (error) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({ error});
   }
 };
 
@@ -180,6 +237,7 @@ const loginUser =  async (req,res)=>{
         res.status(200).json({
            message: "logged in successfully",
            token:jwtToken,
+           id:emailExists.id,
            name:emailExists.Fname +' '+ emailExists.Lname,
            role:emailExists.role
            });
@@ -200,4 +258,4 @@ const loginUser =  async (req,res)=>{
   }
 }
 
-module.exports = { getUsers, getUserById, createUser, updateUser, deleteUser ,loginUser};
+module.exports = { getUsers,changePassword, getUserById, createUser, updateUser, deleteUser ,loginUser};
